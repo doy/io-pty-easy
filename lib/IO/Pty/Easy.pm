@@ -26,6 +26,7 @@ our $VERSION = '0.01';
 
     while (1) {
         my $input = # read a key here...
+        my $input = 'Elbereth' if $input eq "\ce";
         my $chars = $pty->write($input, 0);
         last if defined($chars) && $chars == 0;
         my $output = $pty->read(0);
