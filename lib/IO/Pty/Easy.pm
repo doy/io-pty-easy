@@ -231,7 +231,7 @@ sub write {
     my $nfound = select(undef, $win, undef, $timeout);
     my $nchars;
     if ($nfound > 0) {
-        $nchars = syswrite($self->{pty}, $text, length $text);
+        $nchars = syswrite($self->{pty}, $text);
     }
     return $nchars;
 }
