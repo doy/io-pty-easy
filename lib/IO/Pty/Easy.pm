@@ -125,6 +125,8 @@ sub spawn {
     # if the exec fails, signal the parent by sending the errno across the pipe
     # if the exec succeeds, perl will close the pipe, and the sysread will
     # return due to EOF
+    sub sigchld { wait; $SIG{CHLD} = \&sigchld; }
+    $SIG{CHLD} = \&sigchld;
     $self->{pid} = fork;
     unless ($self->{pid}) {
         close $readp;
@@ -175,7 +177,6 @@ sub spawn {
         $SIG{WINCH} = $winch;
     };
     $SIG{WINCH} = $winch if $self->{handle_pty_size};
-    $SIG{CHLD} = sub { $self->{pid} = undef; wait };
 }
 # }}}
 
@@ -248,7 +249,10 @@ Returns whether or not a subprocess is currently running on the pty.
 sub is_active {
     my $self = shift;
 
-    return defined($self->{pid});
+    return 0 unless defined($self->{pid});
+    my $active = kill 0 => $self->{pid};
+    delete $self->{pid} unless $active;
+    return $active;
 }
 # }}}
 
