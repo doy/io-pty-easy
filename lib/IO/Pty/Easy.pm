@@ -12,7 +12,7 @@ IO::Pty::Easy - Easy interface to IO::Pty
 
 =head1 VERSION
 
-Version 0.01 released ???
+Version 0.01 released 08/17/2007
 
 =cut
 
