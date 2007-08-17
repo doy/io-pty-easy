@@ -27,7 +27,7 @@ our $VERSION = '0.01';
 
     while (1) {
         my $input = # read a key here...
-        my $input = 'Elbereth' if $input eq "\ce";
+        $input = 'Elbereth' if $input eq "\ce";
         my $chars = $pty->write($input, 0);
         last if defined($chars) && $chars == 0;
         my $output = $pty->read(0);
@@ -185,7 +185,7 @@ sub spawn {
 
 Read data from the process running on the pty.
 
-C<read()> takes two optional arguments: the first is the amount of time to block for data (defaults to blocking forever, 0 means completely non-blocking), and the second is the maximum number of bytes to read (defaults to the value of C<def_max_read_chars>, usually 8192).
+C<read()> takes two optional arguments: the first is the number of seconds (possibly fractional) to block for data (defaults to blocking forever, 0 means completely non-blocking), and the second is the maximum number of bytes to read (defaults to the value of C<def_max_read_chars>, usually 8192). The requirement for a maximum returned string length is a limitation imposed by the use of C<sysread()>, which we use internally.
 
 Returns C<undef> on timeout, the empty string on EOF (including if no subprocess is currently running on the pty), or a string of at least one character on success (this is consistent with C<sysread()> and L<Term::ReadKey>).
 
@@ -215,7 +215,7 @@ sub read {
 
 Writes a string to the pty.
 
-The first argument is the string to write, which is followed by one optional argument, the amount of time to block for, taking the same values as C<read()>.
+The first argument is the string to write, which is followed by one optional argument, the number of seconds (possibly fractional) to block for, taking the same values as C<read()>.
 
 Returns undef on timeout, 0 on failure to write (including if no subprocess is running on the pty), or the number of bytes actually written on success (this may be less than the number of bytes requested; this should be checked for).
 
