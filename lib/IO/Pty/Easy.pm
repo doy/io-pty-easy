@@ -74,7 +74,6 @@ sub new {
         # options
         handle_pty_size => 1,
         def_max_read_chars => 8192,
-        def_max_write_chars => 8192,
         @_,
 
         # state
@@ -218,15 +217,14 @@ Returns undef on timeout, 0 on failure to write (including if no subprocess is r
 sub write {
     my $self = shift;
     return 0 unless $self->is_active;
-    my ($text, $timeout, $max_chars) = @_;
-    $max_chars ||= $self->{def_max_write_chars};
+    my ($text, $timeout) = @_;
 
     my $win = '';
     vec($win, fileno($self->{pty}), 1) = 1;
     my $nfound = select(undef, $win, undef, $timeout);
     my $nchars;
     if ($nfound > 0) {
-        $nchars = syswrite($self->{pty}, $text, $max_chars);
+        $nchars = syswrite($self->{pty}, $text, length $text);
     }
     return $nchars;
 }
