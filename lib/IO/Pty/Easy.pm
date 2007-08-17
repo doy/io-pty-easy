@@ -4,6 +4,7 @@ use strict;
 use IO::Pty;
 use Carp;
 
+# Intro documentation {{{
 =head1 NAME
 
 IO::Pty::Easy - Easy interface to creating and using pseudo-ttys with IO::Pty
@@ -41,8 +42,14 @@ C<IO::Pty::Easy> provides an interface to L<IO::Pty> which hides most of the ugl
 
 C<IO::Pty::Easy> uses L<IO::Pty> internally, so it inherits all of the portability restrictions from that module.
 
+=cut
+# }}}
+
 =head1 CONSTRUCTOR
 
+=cut
+
+# new() {{{
 =head2 new()
 
 The C<new> constructor initializes the pty and returns a new C<IO::Pty::Easy> object. The constructor recognizes these parameters:
@@ -81,9 +88,13 @@ sub new {
 
     return $self;
 }
+# }}}
 
 =head1 METHODS
 
+=cut
+
+# spawn() {{{
 =head2 spawn()
 
 Fork a new subprocess, with stdin/stdout/stderr tied to the PTY.
@@ -163,7 +174,9 @@ sub spawn {
     $SIG{WINCH} = $winch if $self->{handle_pty_size};
     $SIG{CHLD} = sub { $self->{pid} = undef; wait };
 }
+# }}}
 
+# read() {{{
 =head2 read()
 
 Read data from the process running on the PTY.
@@ -189,7 +202,9 @@ sub read {
     }
     return $nchars;
 }
+# }}}
 
+# write() {{{
 =head2 write()
 
 Writes a string to the PTY.
@@ -215,7 +230,9 @@ sub write {
     }
     return $nchars;
 }
+# }}}
 
+# is_active() {{{
 =head2 is_active()
 
 Returns whether or not a subprocess is currently running on the PTY.
@@ -227,7 +244,9 @@ sub is_active {
 
     return defined($self->{pid});
 }
+# }}}
 
+# kill() {{{
 =head2 kill()
 
 Kills the process currently running on the PTY (if any). After this call, C<read()> and C<write()> will fail, and a new process can be created on the PTY with C<spawn>.
@@ -242,7 +261,9 @@ sub kill {
     # SIGCHLD should take care of undefing pid
     kill TERM => $self->{pid} if $self->is_active;
 }
+# }}}
 
+# close() {{{
 =head2 close()
 
 Kills any subprocesses and closes the PTY. No other operations are valid after this call.
@@ -260,7 +281,9 @@ sub close {
     close $self->{pty};
     $self->{pty} = undef;
 }
+# }}}
 
+# Ending documentation {{{
 =head1 SEE ALSO
 
 L<IO::Pty>
@@ -316,5 +339,6 @@ This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
 
 =cut
+# }}}
 
 1;
