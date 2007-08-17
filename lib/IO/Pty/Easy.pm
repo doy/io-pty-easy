@@ -119,8 +119,7 @@ sub spawn {
     # set up a pipe to use for keeping track of the child process during exec
     my ($readp, $writep);
     unless (pipe($readp, $writep)) {
-        carp "Failed to create a pipe";
-        return;
+        croak "Failed to create a pipe";
     }
     $writep->autoflush(1);
 
