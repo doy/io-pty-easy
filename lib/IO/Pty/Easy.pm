@@ -161,11 +161,13 @@ sub spawn {
     unless (defined $read_bytes) {
         kill TERM => $self->{pid};
         close $readp;
+        $self->_wait_for_inactive;
         croak "Cannot sync with child: $!";
     }
     close $readp;
     if ($read_bytes > 0) {
         $errno = $errno + 0;
+        $self->_wait_for_inactive;
         croak "Cannot exec(@_): $errno";
     }
 
