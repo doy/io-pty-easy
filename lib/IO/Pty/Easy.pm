@@ -5,6 +5,7 @@ use IO::Pty;
 use Carp;
 
 # Intro documentation {{{
+
 =head1 NAME
 
 IO::Pty::Easy - Easy interface to creating and using pseudo-ttys with IO::Pty
@@ -44,6 +45,7 @@ C<IO::Pty::Easy> provides an interface to L<IO::Pty> which hides most of the ugl
 C<IO::Pty::Easy> uses L<IO::Pty> internally, so it inherits all of the portability restrictions from that module.
 
 =cut
+
 # }}}
 
 =head1 CONSTRUCTOR
@@ -51,6 +53,7 @@ C<IO::Pty::Easy> uses L<IO::Pty> internally, so it inherits all of the portabili
 =cut
 
 # new() {{{
+
 =head2 new()
 
 The C<new> constructor initializes the pty and returns a new C<IO::Pty::Easy> object. The constructor recognizes these parameters:
@@ -95,6 +98,7 @@ sub new {
 =cut
 
 # spawn() {{{
+
 =head2 spawn()
 
 Fork a new subprocess, with stdin/stdout/stderr tied to the PTY.
@@ -177,6 +181,7 @@ sub spawn {
 # }}}
 
 # read() {{{
+
 =head2 read()
 
 Read data from the process running on the PTY.
@@ -206,6 +211,7 @@ sub read {
 # }}}
 
 # write() {{{
+
 =head2 write()
 
 Writes a string to the PTY.
@@ -233,6 +239,7 @@ sub write {
 # }}}
 
 # is_active() {{{
+
 =head2 is_active()
 
 Returns whether or not a subprocess is currently running on the PTY.
@@ -247,6 +254,7 @@ sub is_active {
 # }}}
 
 # kill() {{{
+
 =head2 kill()
 
 Kills the process currently running on the PTY (if any). After this call, C<read()> and C<write()> will fail, and a new process can be created on the PTY with C<spawn()>.
@@ -264,6 +272,7 @@ sub kill {
 # }}}
 
 # close() {{{
+
 =head2 close()
 
 Kills any subprocesses and closes the PTY. No other operations are valid after this call.
@@ -284,9 +293,11 @@ sub close {
 # }}}
 
 # Ending documentation {{{
+
 =head1 SEE ALSO
 
 L<IO::Pty>
+
 L<Expect>
 
 =head1 AUTHOR
@@ -339,6 +350,7 @@ This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
 
 =cut
+
 # }}}
 
 1;
