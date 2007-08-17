@@ -3,7 +3,36 @@ use warnings;
 use strict;
 use IO::Pty;
 
+=head1 NAME
+
+IO::Pty::Easy - ???
+
+=head1 VERSION
+
+Version 0.01 released ???
+
+=cut
+
 our $VERSION = '0.01';
+
+=head1 SYNOPSIS
+
+    use IO::Pty::Easy;
+    do_stuff();
+
+=head1 DESCRIPTION
+
+=cut
+
+=head1 CONSTRUCTOR
+
+=head2 new()
+
+=over 4
+
+=back
+
+=cut
 
 sub new {
     my $class = shift;
@@ -25,6 +54,16 @@ sub new {
 
     return $self;
 }
+
+=head1 METHODS
+
+=head2 spawn()
+
+=over 4
+
+=back
+
+=cut
 
 sub spawn {
     my $self = shift;
@@ -90,12 +129,19 @@ sub spawn {
     $winch = sub {
         $self->{pty}->slave->clone_winsize_from(\*STDIN);
         kill WINCH => $self->{pid} if $self->is_active;
-        # XXX: does this work?
         $SIG{WINCH} = $winch;
     };
     $SIG{WINCH} = $winch if $self->{handle_pty_size};
     $SIG{CHLD} = sub { $self->{pid} = undef; wait };
 }
+
+=head2 read()
+
+=over 4
+
+=back
+
+=cut
 
 sub read {
     my $self = shift;
@@ -113,6 +159,14 @@ sub read {
     return $nchars;
 }
 
+=head2 write()
+
+=over 4
+
+=back
+
+=cut
+
 sub write {
     my $self = shift;
     return 0 unless $self->is_active;
@@ -129,11 +183,27 @@ sub write {
     return $nchars;
 }
 
+=head2 is_active()
+
+=over 4
+
+=back
+
+=cut
+
 sub is_active {
     my $self = shift;
 
     return defined($self->{pid});
 }
+
+=head2 kill()
+
+=over 4
+
+=back
+
+=cut
 
 sub kill {
     my $self = shift;
@@ -141,6 +211,14 @@ sub kill {
     # SIGCHLD should take care of undefing pid
     kill TERM => $self->{pid} if $self->is_active;
 }
+
+=head2 close()
+
+=over 4
+
+=back
+
+=cut
 
 sub close {
     my $self = shift;
@@ -150,42 +228,14 @@ sub close {
     $self->{pty} = undef;
 }
 
-1;
-#!perl
-package IO::Pty::Easy;
-use strict;
-use warnings;
-
-
-
-=head1 NAME
-
-IO::Pty::Easy - ???
-
-=head1 VERSION
-
-Version 0.01 released ???
-
-=cut
-
-our $VERSION = '0.01';
-
-=head1 SYNOPSIS
-
-    use IO::Pty::Easy;
-    do_stuff();
-
-=head1 DESCRIPTION
-
-
-
 =head1 SEE ALSO
 
-L<Foo::Bar>
+L<IO::Pty>
+L<Expect>
 
 =head1 AUTHOR
 
-Shawn M Moore, C<< <sartak at gmail.com> >>
+Jesse Luehrs, C<< <jluehrs2 at uiuc dot edu> >>
 
 =head1 BUGS
 
@@ -225,7 +275,7 @@ L<http://search.cpan.org/dist/IO-Pty-Easy>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2007 Shawn M Moore.
+Copyright 2007 Jesse Luehrs.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
@@ -233,4 +283,3 @@ under the same terms as Perl itself.
 =cut
 
 1;
-
