@@ -8,7 +8,7 @@ use Carp;
 
 =head1 NAME
 
-IO::Pty::Easy - Easy interface to creating and using pseudo-ttys with IO::Pty
+IO::Pty::Easy - Easy interface to IO::Pty
 
 =head1 VERSION
 
@@ -124,7 +124,7 @@ sub spawn {
     # fork a child process
     # if the exec fails, signal the parent by sending the errno across the pipe
     # if the exec succeeds, perl will close the pipe, and the sysread will
-    # return due to eof
+    # return due to EOF
     $self->{pid} = fork;
     unless ($self->{pid}) {
         close $readp;
@@ -150,7 +150,7 @@ sub spawn {
     close $writep;
     $self->{pty}->close_slave;
     $self->{pty}->set_raw;
-    # this sysread will block until either we get an eof from the other end of
+    # this sysread will block until either we get an EOF from the other end of
     # the pipe being closed due to the exec, or until the child process sends
     # us the errno of the exec call after it fails
     my $errno;
@@ -188,7 +188,7 @@ Read data from the process running on the PTY.
 
 C<read()> takes two optional arguments: the first is the amount of time to block for data (defaults to blocking forever, 0 means completely non-blocking), and the second is the maximum number of bytes to read (defaults to the value of C<def_max_read_chars>, usually 8192).
 
-Returns C<undef> on timeout, '' on eof (including if no subprocess is currently running on the PTY), and a string of at least one character on success (this is consistent with C<sysread()> and L<Term::ReadKey>).
+Returns C<undef> on timeout, the empty string on EOF (including if no subprocess is currently running on the PTY), or a string of at least one character on success (this is consistent with C<sysread()> and L<Term::ReadKey>).
 
 =cut
 
@@ -218,7 +218,7 @@ Writes a string to the PTY.
 
 The first argument is the string to write, which is followed by one optional argument, the amount of time to block for, taking the same values as C<read()>.
 
-Returns undef on timeout, 0 on failure to write (including if no subprocess is running on the PTY), and the number of bytes actually written on success (this may be less than the number of bytes requested; this should be checked for).
+Returns undef on timeout, 0 on failure to write (including if no subprocess is running on the PTY), or the number of bytes actually written on success (this may be less than the number of bytes requested; this should be checked for).
 
 =cut
 
