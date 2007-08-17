@@ -113,6 +113,9 @@ sub spawn {
     my $self = shift;
     my $slave = $self->{pty}->slave;
 
+    croak "Attempt to spawn a subprocess when one is already running"
+        if $self->is_active;
+
     # set up a pipe to use for keeping track of the child process during exec
     my ($readp, $writep);
     unless (pipe($readp, $writep)) {
