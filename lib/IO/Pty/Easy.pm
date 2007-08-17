@@ -40,7 +40,7 @@ our $VERSION = '0.01';
 
 =head1 DESCRIPTION
 
-C<IO::Pty::Easy> provides an interface to L<IO::Pty> which hides most of the ugly details of handling PTYs, wrapping them instead in simple spawn/read/write commands.
+C<IO::Pty::Easy> provides an interface to L<IO::Pty> which hides most of the ugly details of handling ptys, wrapping them instead in simple spawn/read/write commands.
 
 C<IO::Pty::Easy> uses L<IO::Pty> internally, so it inherits all of the portability restrictions from that module.
 
@@ -62,7 +62,7 @@ The C<new> constructor initializes the pty and returns a new C<IO::Pty::Easy> ob
 
 =item handle_pty_size
 
-A boolean option which determines whether or not changes in the size of the user's terminal should be propageted to the PTY object. Defaults to true.
+A boolean option which determines whether or not changes in the size of the user's terminal should be propageted to the pty object. Defaults to true.
 
 =item def_max_read_chars
 
@@ -101,7 +101,7 @@ sub new {
 
 =head2 spawn()
 
-Fork a new subprocess, with stdin/stdout/stderr tied to the PTY.
+Fork a new subprocess, with stdin/stdout/stderr tied to the pty.
 
 The argument list is passed directly to C<exec()>.
 
@@ -183,11 +183,11 @@ sub spawn {
 
 =head2 read()
 
-Read data from the process running on the PTY.
+Read data from the process running on the pty.
 
 C<read()> takes two optional arguments: the first is the amount of time to block for data (defaults to blocking forever, 0 means completely non-blocking), and the second is the maximum number of bytes to read (defaults to the value of C<def_max_read_chars>, usually 8192).
 
-Returns C<undef> on timeout, the empty string on EOF (including if no subprocess is currently running on the PTY), or a string of at least one character on success (this is consistent with C<sysread()> and L<Term::ReadKey>).
+Returns C<undef> on timeout, the empty string on EOF (including if no subprocess is currently running on the pty), or a string of at least one character on success (this is consistent with C<sysread()> and L<Term::ReadKey>).
 
 =cut
 
@@ -213,11 +213,11 @@ sub read {
 
 =head2 write()
 
-Writes a string to the PTY.
+Writes a string to the pty.
 
 The first argument is the string to write, which is followed by one optional argument, the amount of time to block for, taking the same values as C<read()>.
 
-Returns undef on timeout, 0 on failure to write (including if no subprocess is running on the PTY), or the number of bytes actually written on success (this may be less than the number of bytes requested; this should be checked for).
+Returns undef on timeout, 0 on failure to write (including if no subprocess is running on the pty), or the number of bytes actually written on success (this may be less than the number of bytes requested; this should be checked for).
 
 =cut
 
@@ -241,7 +241,7 @@ sub write {
 
 =head2 is_active()
 
-Returns whether or not a subprocess is currently running on the PTY.
+Returns whether or not a subprocess is currently running on the pty.
 
 =cut
 
@@ -256,7 +256,7 @@ sub is_active {
 
 =head2 kill()
 
-Kills the process currently running on the PTY (if any). After this call, C<read()> and C<write()> will fail, and a new process can be created on the PTY with C<spawn()> once C<is_active> returns false.
+Kills the process currently running on the pty (if any). After this call, C<read()> and C<write()> will fail, and a new process can be created on the pty with C<spawn()> once C<is_active> returns false.
 
 Returns 1 if a process was actually killed, and 0 otherwise.
 
@@ -274,7 +274,7 @@ sub kill {
 
 =head2 close()
 
-Kills any subprocesses and closes the PTY. No other operations are valid after this call.
+Kills any subprocesses and closes the pty. No other operations are valid after this call.
 
 =over 4
 
