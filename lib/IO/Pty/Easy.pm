@@ -144,7 +144,8 @@ sub spawn {
         close $slave;
         { exec(@_) };
         print $writep $! + 0;
-        croak "Cannot exec(@_): $!";
+        carp "Cannot exec(@_): $!";
+        exit 1;
     }
 
     close $writep;
@@ -156,16 +157,14 @@ sub spawn {
     my $errno;
     my $read_bytes = sysread($readp, $errno, 256);
     unless (defined $read_bytes) {
-        carp "Cannot sync with child: $!";
         kill TERM => $self->{pid};
         close $readp;
-        return;
+        croak "Cannot sync with child: $!";
     }
     close $readp;
     if ($read_bytes > 0) {
         $errno = $errno + 0;
-        carp "Cannot exec(@_): $errno";
-        return;
+        croak "Cannot exec(@_): $errno";
     }
 
     my $pid = $self->{pid};
