@@ -260,17 +260,23 @@ sub is_active {
 
 =head2 kill()
 
-Kills the process currently running on the pty (if any). After this call, C<read()> and C<write()> will fail, and a new process can be created on the pty with C<spawn()> once C<is_active> returns false.
+Sends a signal to the process currently running on the pty (if any). Optionally blocks until the process dies.
 
-Returns 1 if a process was actually killed, and 0 otherwise.
+C<kill()> takes two optional arguments. The first is the signal to send, in any format that the perl C<kill()> command recognizes (defaulting to "TERM"). The second is a boolean argument, where false means to block until the process dies, and true means to just send the signal and return.
+
+Returns 1 if a process was actually signaled, and 0 otherwise.
 
 =cut
 
 sub kill {
     my $self = shift;
+    my ($sig, $non_blocking) = @_;
+    $sig = "TERM" unless defined $sig;
 
-    # SIGCHLD should take care of undefing pid
-    kill TERM => $self->{pid} if $self->is_active;
+    my $kills = kill $sig => $self->{pid} if $self->is_active;
+    $self->_wait_for_inactive unless $non_blocking;
+
+    return $kills;
 }
 # }}}
 
@@ -292,6 +298,14 @@ sub close {
     $self->kill;
     close $self->{pty};
     $self->{pty} = undef;
+}
+# }}}
+
+# _wait_for_inactive() {{{
+sub _wait_for_inactive {
+    my $self = shift;
+
+    1 while $self->is_active;
 }
 # }}}
 
