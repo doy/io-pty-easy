@@ -256,7 +256,7 @@ sub is_active {
 
 =head2 kill()
 
-Kills the process currently running on the PTY (if any). After this call, C<read()> and C<write()> will fail, and a new process can be created on the PTY with C<spawn()>.
+Kills the process currently running on the PTY (if any). After this call, C<read()> and C<write()> will fail, and a new process can be created on the PTY with C<spawn()> once C<is_active> returns false.
 
 Returns 1 if a process was actually killed, and 0 otherwise.
 
