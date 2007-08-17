@@ -6,7 +6,7 @@ use Carp;
 
 =head1 NAME
 
-IO::Pty::Easy - ???
+IO::Pty::Easy - Easy interface to creating and using pseudo-ttys with IO::Pty
 
 =head1 VERSION
 
@@ -19,17 +19,43 @@ our $VERSION = '0.01';
 =head1 SYNOPSIS
 
     use IO::Pty::Easy;
-    do_stuff();
+
+    my $pty = IO::Pty::Easy->new;
+    $pty->spawn("nethack");
+
+    while (1) {
+        my $input = # read a key here...
+        my $chars = $pty->write($input, 0);
+        last if defined($chars) && $chars == 0;
+        my $output = $pty->read(0);
+        last if defined($output) && $output eq '';
+        $output =~ s/Elbereth/\e[35mElbereth\e[m/;
+        print $output;
+    }
+
+    $pty->close;
 
 =head1 DESCRIPTION
 
-=cut
+C<IO::Pty::Easy> provides an interface to L<IO::Pty> which hides most of the ugly details of handling PTYs, wrapping them instead in simple spawn/read/write commands.
+
+C<IO::Pty::Easy> uses L<IO::Pty> internally, so it inherits all of the portability restrictions from that module.
 
 =head1 CONSTRUCTOR
 
 =head2 new()
 
+The C<new> constructor initializes the pty and returns a new C<IO::Pty::Easy> object. The constructor recognizes these parameters:
+
 =over 4
+
+=item handle_pty_size
+
+A boolean option which determines whether or not changes in the size of the user's terminal should be propageted to the PTY object. Defaults to true.
+
+=item def_max_read_chars
+
+The maximum number of characters returned by a C<read()> call. This can be overridden in the C<read()> argument list. Defaults to 8192.
 
 =back
 
@@ -60,9 +86,11 @@ sub new {
 
 =head2 spawn()
 
-=over 4
+Fork a new subprocess, with stdin/stdout/stderr tied to the PTY.
 
-=back
+The argument list is passed directly to C<exec()>.
+
+Returns true on success, false on failure.
 
 =cut
 
@@ -138,9 +166,11 @@ sub spawn {
 
 =head2 read()
 
-=over 4
+Read data from the process running on the PTY.
 
-=back
+C<read()> takes two optional arguments: the first is the amount of time to block for data (defaults to blocking forever, 0 means completely non-blocking), and the second is the maximum number of bytes to read (defaults to the value of C<def_max_read_chars>, usually 8192).
+
+Returns C<undef> on timeout, 0 on eof (including if no subprocess is currently running on the PTY), and a string of at least one character on success (this is consistent with C<sysread()> and L<Term::ReadKey>).
 
 =cut
 
@@ -162,9 +192,11 @@ sub read {
 
 =head2 write()
 
-=over 4
+Writes a string to the PTY.
 
-=back
+The first argument is the string to write, which is followed by one optional argument, the amount of time to block for, taking the same values as C<read()>.
+
+Returns undef on timeout, 0 on failure to write (including if no subprocess is running on the PTY), and the number of bytes actually written on success (this may be less than the number of bytes requested; this should be checked for).
 
 =cut
 
@@ -186,9 +218,7 @@ sub write {
 
 =head2 is_active()
 
-=over 4
-
-=back
+Returns whether or not a subprocess is currently running on the PTY.
 
 =cut
 
@@ -200,9 +230,9 @@ sub is_active {
 
 =head2 kill()
 
-=over 4
+Kills the process currently running on the PTY (if any). After this call, C<read()> and C<write()> will fail, and a new process can be created on the PTY with C<spawn>.
 
-=back
+Returns 1 if a process was actually killed, and 0 otherwise.
 
 =cut
 
@@ -214,6 +244,8 @@ sub kill {
 }
 
 =head2 close()
+
+Kills any subprocesses and closes the PTY. No other operations are valid after this call.
 
 =over 4
 
@@ -237,6 +269,8 @@ L<Expect>
 =head1 AUTHOR
 
 Jesse Luehrs, C<< <jluehrs2 at uiuc dot edu> >>
+
+This module is based heavily on the F<try> script bundled with L<IO::Pty>.
 
 =head1 BUGS
 
