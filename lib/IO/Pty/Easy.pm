@@ -171,7 +171,6 @@ sub spawn {
         croak "Cannot exec(@_): $errno";
     }
 
-    my $pid = $self->{pid};
     my $winch;
     $winch = sub {
         $self->{pty}->slave->clone_winsize_from(\*STDIN);
