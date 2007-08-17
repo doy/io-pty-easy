@@ -2,6 +2,7 @@ package IO::Pty::Easy;
 use warnings;
 use strict;
 use IO::Pty;
+use Carp;
 
 =head1 NAME
 
@@ -72,7 +73,7 @@ sub spawn {
     # set up a pipe to use for keeping track of the child process during exec
     my ($readp, $writep);
     unless (pipe($readp, $writep)) {
-        warn "Failed to create a pipe";
+        carp "Failed to create a pipe";
         return;
     }
     $writep->autoflush(1);
@@ -92,15 +93,15 @@ sub spawn {
         # pty rather than wherever they have been pointing during the script's
         # execution
         open(STDIN,  "<&" . $slave->fileno)
-            or warn "Couldn't reopen STDIN for reading";
+            or carp "Couldn't reopen STDIN for reading";
         open(STDOUT, ">&" . $slave->fileno)
-            or warn "Couldn't reopen STDOUT for writing";
+            or carp "Couldn't reopen STDOUT for writing";
         open(STDERR, ">&" . $slave->fileno)
-            or warn "Couldn't reopen STDERR for writing";
+            or carp "Couldn't reopen STDERR for writing";
         close $slave;
         { exec(@_) };
         print $writep $! + 0;
-        die "Cannot exec(@_): $!";
+        croak "Cannot exec(@_): $!";
     }
 
     close $writep;
@@ -112,7 +113,7 @@ sub spawn {
     my $errno;
     my $read_bytes = sysread($readp, $errno, 256);
     unless (defined $read_bytes) {
-        warn "Cannot sync with child: $!";
+        carp "Cannot sync with child: $!";
         kill TERM => $self->{pid};
         close $readp;
         return;
@@ -120,7 +121,7 @@ sub spawn {
     close $readp;
     if ($read_bytes > 0) {
         $errno = $errno + 0;
-        warn "Cannot exec(@_): $errno";
+        carp "Cannot exec(@_): $errno";
         return;
     }
 
