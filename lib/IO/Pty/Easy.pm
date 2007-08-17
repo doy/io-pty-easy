@@ -183,24 +183,25 @@ Read data from the process running on the PTY.
 
 C<read()> takes two optional arguments: the first is the amount of time to block for data (defaults to blocking forever, 0 means completely non-blocking), and the second is the maximum number of bytes to read (defaults to the value of C<def_max_read_chars>, usually 8192).
 
-Returns C<undef> on timeout, 0 on eof (including if no subprocess is currently running on the PTY), and a string of at least one character on success (this is consistent with C<sysread()> and L<Term::ReadKey>).
+Returns C<undef> on timeout, '' on eof (including if no subprocess is currently running on the PTY), and a string of at least one character on success (this is consistent with C<sysread()> and L<Term::ReadKey>).
 
 =cut
 
 sub read {
     my $self = shift;
-    return 0 unless $self->is_active;
-    my ($buf, $timeout, $max_chars) = @_;
+    return '' unless $self->is_active;
+    my ($timeout, $max_chars) = @_;
     $max_chars ||= $self->{def_max_read_chars};
 
     my $rin = '';
     vec($rin, fileno($self->{pty}), 1) = 1;
     my $nfound = select($rin, undef, undef, $timeout);
-    my $nchars;
+    my $buf;
     if ($nfound > 0) {
-        $nchars = sysread($self->{pty}, $_[0], $max_chars);
+        my $nchars = sysread($self->{pty}, $buf, $max_chars);
+        $buf = '' if defined($nchars) && $nchars == 0;
     }
-    return $nchars;
+    return $buf;
 }
 # }}}
 
