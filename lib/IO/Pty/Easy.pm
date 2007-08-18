@@ -161,6 +161,8 @@ sub spawn {
     my $errno;
     my $read_bytes = sysread($readp, $errno, 256);
     unless (defined $read_bytes) {
+        # XXX: should alarm here and follow up with SIGKILL if the process
+        # refuses to die
         kill TERM => $self->{pid};
         close $readp;
         $self->_wait_for_inactive;
