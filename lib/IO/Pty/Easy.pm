@@ -25,7 +25,7 @@ our $VERSION = '0.01';
     my $pty = IO::Pty::Easy->new;
     $pty->spawn("nethack");
 
-    while (1) {
+    while ($pty->is_active) {
         my $input = # read a key here...
         $input = 'Elbereth' if $input eq "\ce";
         my $chars = $pty->write($input, 0);
