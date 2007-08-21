@@ -195,13 +195,12 @@ Read data from the process running on the pty.
 
 C<read()> takes two optional arguments: the first is the number of seconds (possibly fractional) to block for data (defaults to blocking forever, 0 means completely non-blocking), and the second is the maximum number of bytes to read (defaults to the value of C<def_max_read_chars>, usually 8192). The requirement for a maximum returned string length is a limitation imposed by the use of C<sysread()>, which we use internally.
 
-Returns C<undef> on timeout, the empty string on EOF (including if no subprocess is currently running on the pty), or a string of at least one character on success (this is consistent with C<sysread()> and L<Term::ReadKey>).
+Returns C<undef> on timeout, the empty string on EOF, or a string of at least one character on success (this is consistent with C<sysread()> and L<Term::ReadKey>).
 
 =cut
 
 sub read {
     my $self = shift;
-    return '' unless $self->is_active;
     my ($timeout, $max_chars) = @_;
     $max_chars ||= $self->{def_max_read_chars};
 
@@ -225,13 +224,12 @@ Writes a string to the pty.
 
 The first argument is the string to write, which is followed by one optional argument, the number of seconds (possibly fractional) to block for, taking the same values as C<read()>.
 
-Returns undef on timeout, 0 on failure to write (including if no subprocess is running on the pty), or the number of bytes actually written on success (this may be less than the number of bytes requested; this should be checked for).
+Returns undef on timeout, 0 on failure to write, or the number of bytes actually written on success (this may be less than the number of bytes requested; this should be checked for).
 
 =cut
 
 sub write {
     my $self = shift;
-    return 0 unless $self->is_active;
     my ($text, $timeout) = @_;
 
     my $win = '';
