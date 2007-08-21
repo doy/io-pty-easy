@@ -3,6 +3,7 @@ use warnings;
 use strict;
 use IO::Pty;
 use Carp;
+require POSIX;
 
 # Intro documentation {{{
 
@@ -88,6 +89,7 @@ sub new {
     bless $self, $class;
 
     $self->{pty} = new IO::Pty;
+    $self->{handle_pty_size} = 0 unless POSIX::isatty(*STDIN);
 
     return $self;
 }
