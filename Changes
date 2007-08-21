@@ -1,5 +1,9 @@
 Revision history for IO-Pty-Easy
 
+0.03    08/20/2007
+    Make sure stdin/out are connected to a tty before trying to clone winsize from them
+    Fix the subprocess test so that it waits for the read before the subprocess dies
+
 0.02    08/17/2007
     Made calls which could possibly terminate the subprocess blocking by default
     A few other minor bug fixes, doc fixes, and general cleanups
