@@ -1,4 +1,8 @@
 Revision history for IO-Pty-Easy
 
+0.02    08/17/2007
+    Made calls which could possibly terminate the subprocess blocking by default
+    A few other minor bug fixes, doc fixes, and general cleanups
+
 0.01    08/17/2007
     Initial release

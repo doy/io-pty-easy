@@ -12,11 +12,11 @@ IO::Pty::Easy - Easy interface to IO::Pty
 
 =head1 VERSION
 
-Version 0.01 released 08/17/2007
+Version 0.02 released 08/17/2007
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 SYNOPSIS
 
