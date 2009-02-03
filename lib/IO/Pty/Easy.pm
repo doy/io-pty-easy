@@ -254,9 +254,12 @@ Returns whether or not a subprocess is currently running on the pty.
 sub is_active {
     my $self = shift;
 
-    return 0 unless defined($self->{pid});
-    my $active = kill 0 => $self->{pid};
-    delete $self->{pid} unless $active;
+    my $active = defined($self->{pid});
+    $active = kill 0 => $self->{pid} if $active;
+    if (!$active) {
+        delete $self->{pid};
+        $SIG{WINCH} = 'DEFAULT';
+    }
     return $active;
 }
 # }}}
