@@ -314,6 +314,13 @@ sub _wait_for_inactive {
 }
 # }}}
 
+# DESTROY {{{
+sub DESTROY {
+    my $self = shift;
+    $self->close;
+}
+# }}}
+
 # Ending documentation {{{
 
 =head1 SEE ALSO
