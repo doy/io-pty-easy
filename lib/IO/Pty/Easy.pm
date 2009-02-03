@@ -300,6 +300,7 @@ Kills any subprocesses and closes the pty. No other operations are valid after t
 sub close {
     my $self = shift;
 
+    return unless defined $self->{pty};
     $self->kill;
     close $self->{pty};
     $self->{pty} = undef;
