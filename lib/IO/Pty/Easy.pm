@@ -256,8 +256,8 @@ sub is_active {
     return 0 unless defined $self->{pid};
     my $active = kill 0 => $self->{pid};
     if (!$active) {
+        $SIG{WINCH} = 'DEFAULT' if $self->{handle_pty_size};
         delete $self->{pid};
-        $SIG{WINCH} = 'DEFAULT';
     }
     return $active;
 }
