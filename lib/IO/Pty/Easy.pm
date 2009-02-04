@@ -13,7 +13,7 @@ IO::Pty::Easy - Easy interface to IO::Pty
 
 =head1 VERSION
 
-Version 0.04 released XXX
+Version 0.04 released 2/3/2009
 
 =cut
 
@@ -392,7 +392,7 @@ L<http://search.cpan.org/dist/IO-Pty-Easy>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2007 Jesse Luehrs.
+Copyright 2007-2009 Jesse Luehrs.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
