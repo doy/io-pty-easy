@@ -1,5 +1,11 @@
 Revision history for IO-Pty-Easy
 
+0.04    02/03/2009
+    - Don't mess with SIGCHLD, it breaks system() and ``
+    - Don't die if $pty->close is called multiple times (and close on DESTROY)
+    - Don't mess with SIGWINCH if we weren't the ones that set it up
+    - Sleep while waiting for a process to die, rather than spinning
+    - FreeBSD should pass all tests now (sorear)
 0.03    08/20/2007
     - Make sure stdin/out are connected to a tty before trying to clone winsize
       from them
