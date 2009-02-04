@@ -28,3 +28,4 @@ eval {
 };
 isnt($@, "alarm2\n", "system() didn't time out (after kill)");
 is($output, "bar", "system() got the right value (after kill)");
+$pty->close;

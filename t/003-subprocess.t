@@ -18,4 +18,4 @@ unlike($outside_of_pty, qr/ok/, "running outside of pty fails -t checks");
 $script .= "sleep 1 while 1;";
 $pty->spawn("$^X -e '$script'");
 like($pty->read, qr/ok/, "runs subprocess in a pty");
-$pty->kill;
+$pty->close;
