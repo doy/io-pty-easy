@@ -129,7 +129,6 @@ sub spawn {
     # if the exec fails, signal the parent by sending the errno across the pipe
     # if the exec succeeds, perl will close the pipe, and the sysread will
     # return due to EOF
-    $SIG{CHLD} = 'IGNORE';
     $self->{pid} = fork;
     unless ($self->{pid}) {
         close $readp;
@@ -255,6 +254,10 @@ sub is_active {
 
     return 0 unless defined $self->{pid};
     my $active = kill 0 => $self->{pid};
+    if ($active) {
+        my $pid = waitpid($self->{pid}, POSIX::WNOHANG);
+        $active = 0 if $pid == $self->{pid};
+    }
     if (!$active) {
         $SIG{WINCH} = 'DEFAULT' if $self->{handle_pty_size};
         delete $self->{pid};
@@ -281,10 +284,7 @@ sub kill {
     $sig = "TERM" unless defined $sig;
 
     my $kills = kill $sig => $self->{pid} if $self->is_active;
-    if (!$non_blocking) {
-        wait;
-        $self->_wait_for_inactive unless $non_blocking;
-    }
+    $self->_wait_for_inactive unless $non_blocking;
 
     return $kills;
 }
