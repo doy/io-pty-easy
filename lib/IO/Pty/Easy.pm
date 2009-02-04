@@ -255,7 +255,7 @@ sub is_active {
     return 0 unless defined $self->{pid};
     my $active = kill 0 => $self->{pid};
     if ($active) {
-        my $pid = waitpid($self->{pid}, POSIX::WNOHANG);
+        my $pid = waitpid($self->{pid}, POSIX::WNOHANG());
         $active = 0 if $pid == $self->{pid};
     }
     if (!$active) {
