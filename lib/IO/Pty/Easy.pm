@@ -350,7 +350,7 @@ L<Expect>
 
 =head1 AUTHOR
 
-Jesse Luehrs, C<< <jluehrs2 at uiuc dot edu> >>
+Jesse Luehrs, C<< <doy at tozt dot net> >>
 
 This module is based heavily on the F<try> script bundled with L<IO::Pty>.
 
