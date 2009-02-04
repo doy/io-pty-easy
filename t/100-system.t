@@ -7,17 +7,14 @@ use IO::Pty::Easy;
 my $pty = IO::Pty::Easy->new;
 $pty->spawn("$^X -ple ''");
 my $output;
-TODO: {
-    local $TODO = "sigchld breaks things...";
-    eval {
-        local $SIG{ALRM} = sub { die "alarm\n" };
-        alarm 5;
-        $output = `$^X -e 'print "foo"'`;
-        alarm 0;
-    };
-    isnt($@, "alarm\n", "system() didn't time out");
-    is($output, "foo", "system() got the right value");
-}
+eval {
+    local $SIG{ALRM} = sub { die "alarm\n" };
+    alarm 5;
+    $output = `$^X -e 'print "foo"'`;
+    alarm 0;
+};
+isnt($@, "alarm\n", "system() didn't time out");
+is($output, "foo", "system() got the right value");
 $pty->kill;
 undef $output;
 eval {
