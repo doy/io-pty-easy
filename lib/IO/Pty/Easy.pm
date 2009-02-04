@@ -3,7 +3,7 @@ use warnings;
 use strict;
 use IO::Pty;
 use Carp;
-require POSIX;
+use POSIX ();
 
 # Intro documentation {{{
 
