@@ -89,7 +89,7 @@ sub new {
 
     bless $self, $class;
 
-    $self->{pty} = new IO::Pty;
+    $self->{pty} = IO::Pty->new;
     $self->{handle_pty_size} = 0 unless POSIX::isatty(*STDIN);
 
     return $self;

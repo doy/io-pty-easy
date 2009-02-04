@@ -4,7 +4,7 @@ use warnings;
 use Test::More tests => 2;
 use IO::Pty::Easy;
 
-my $pty = new IO::Pty::Easy;
+my $pty = IO::Pty::Easy->new;
 eval {
     local $SIG{ALRM} = sub { die "alarm\n" };
     alarm 5;

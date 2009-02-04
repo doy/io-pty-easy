@@ -4,7 +4,7 @@ use warnings;
 use Test::More tests => 1;
 use IO::Pty::Easy;
 
-my $pty = new IO::Pty::Easy;
+my $pty = IO::Pty::Easy->new;
 
 $pty->spawn("$^X -ple ''");
 $pty->write("testing\n");

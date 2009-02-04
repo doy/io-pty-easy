@@ -4,7 +4,7 @@ use warnings;
 use Test::More tests => 5;
 use IO::Pty::Easy;
 
-my $pty = new IO::Pty::Easy;
+my $pty = IO::Pty::Easy->new;
 $pty->spawn("$^X -ple ''");
 ok($pty->is_active, "spawning a subprocess");
 ok($pty->kill(0, 1), "subprocess actually exists");

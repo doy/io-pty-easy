@@ -4,7 +4,7 @@ use warnings;
 use Test::More tests => 2;
 use IO::Pty::Easy;
 
-my $pty = new IO::Pty::Easy;
+my $pty = IO::Pty::Easy->new;
 my $script = << 'EOF';
 $| = 1;
 if (-t *STDIN && -t *STDOUT) { print "ok" }
