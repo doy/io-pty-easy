@@ -155,6 +155,7 @@ sub spawn {
     close $writep;
     $self->{pty}->close_slave;
     $self->{pty}->set_raw;
+    $self->{final_output} = '';
     # this sysread will block until either we get an EOF from the other end of
     # the pipe being closed due to the exec, or until the child process sends
     # us the errno of the exec call after it fails
@@ -210,6 +211,8 @@ sub read {
         my $nchars = sysread($self->{pty}, $buf, $max_chars);
         $buf = '' if defined($nchars) && $nchars == 0;
     }
+    $buf = $self->{final_output} . $buf;
+    $self->{final_output} = '';
     return $buf;
 }
 # }}}
@@ -253,6 +256,16 @@ sub is_active {
     my $self = shift;
 
     return 0 unless defined $self->{pid};
+    # XXX XXX XXX FreeBSD 7.0 will not allow a session leader to exit
+    # until the kernel tty output buffer is empty.  Make it so.
+    my $rin = '';
+    vec($rin, fileno($self->{pty}), 1) = 1;
+    my $nfound = select($rin, undef, undef, 0);
+    if ($nfound > 0) {
+            sysread($self->{pty}, $self->{final_output},
+                    $self->{def_max_read_chars}, length $self->{final_output});
+    }
+
     my $active = kill 0 => $self->{pid};
     if ($active) {
         my $pid = waitpid($self->{pid}, POSIX::WNOHANG());
