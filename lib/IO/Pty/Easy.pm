@@ -316,7 +316,7 @@ sub close {
 sub _wait_for_inactive {
     my $self = shift;
 
-    1 while $self->is_active;
+    select(undef, undef, undef, 0.01) while $self->is_active;
 }
 # }}}
 
