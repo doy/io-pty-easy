@@ -211,8 +211,11 @@ sub read {
         my $nchars = sysread($self->{pty}, $buf, $max_chars);
         $buf = '' if defined($nchars) && $nchars == 0;
     }
-    $buf = $self->{final_output} . $buf;
-    $self->{final_output} = '';
+    if (length($self->{final_output}) > 0) {
+        no warnings 'uninitialized';
+        $buf = $self->{final_output} . $buf;
+        $self->{final_output} = '';
+    }
     return $buf;
 }
 # }}}
