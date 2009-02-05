@@ -7,6 +7,7 @@ all_from       'lib/IO/Pty/Easy.pm';
 
 requires       'IO::Pty';
 requires       'Carp';
+requires       'POSIX';
 
 build_requires 'Test::More';
 
