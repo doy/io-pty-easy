@@ -339,6 +339,8 @@ sub _wait_for_inactive {
 # DESTROY {{{
 sub DESTROY {
     my $self = shift;
+    local $@;
+    local $?;
     $self->close;
 }
 # }}}
