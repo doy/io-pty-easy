@@ -1,5 +1,13 @@
 Revision history for IO-Pty-Easy
 
+0.06    07/06/2009
+    - Localize $@ and $? in the destructor
+    - Convert the module to use the actual pty object as the class instance,
+      rather than hiding it away in the hashref - now things like fileno($pty)
+      will do what you expect. This is potentially backwards-incompatible if
+      you have been digging around in the hash prior to this.
+    - Add a few accessors for the object state
+
 0.05    02/04/2009
     - Fix read() returning undef on timeout
 
