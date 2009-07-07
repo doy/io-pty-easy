@@ -1,4 +1,4 @@
-IO-Pty-Easy 0.05
+IO-Pty-Easy 0.06
 
 IO::Pty::Easy is a module that makes using IO::Pty much easier. It wraps all of the code required to create the PTY, spawn subprocesses in it, and read/write on it. This module provides the same basic functionality as Expect.pm, except at a lower level; just reading and writing to the subprocess is supported, without any of the pattern matching or extra functionality provided by Expect.pm. Its primary use is to allow for intercepting and modifying input and output for console apps which require tty access; for instance it is currently being used in Interhack, a filter program for NetHack.
 
