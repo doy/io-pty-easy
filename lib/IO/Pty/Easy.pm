@@ -394,6 +394,8 @@ L<IO::Pty>
 
 L<Expect>
 
+L<IO::Pty::HalfDuplex>
+
 =head1 AUTHOR
 
 Jesse Luehrs, C<< <doy at tozt dot net> >>
