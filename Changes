@@ -1,11 +1,12 @@
 Revision history for IO-Pty-Easy
 
-0.07    07/06/2009
+0.07    07/07/2009
     - Add a constructor option 'raw' (default true) to configure whether the
       pty should be set to raw mode on spawn.
     - Don't ever automatically set the master side of the pty to raw, since
       it's controlled by the parent process (I don't think this should break
       anything?)
+    - Build system changed to Dist::Zilla
 
 0.06    07/06/2009
     - Localize $@ and $? in the destructor
