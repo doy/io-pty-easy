@@ -84,11 +84,15 @@ sub new {
     my $def_max_read_chars = 8192;
     $def_max_read_chars = delete $args{def_max_read_chars}
         if exists $args{def_max_read_chars};
+    my $raw = 1;
+    $raw = delete $args{raw}
+        if exists $args{raw};
 
     my $self = $class->SUPER::new(%args);
     bless $self, $class;
     $self->handle_pty_size($handle_pty_size);
     $self->def_max_read_chars($def_max_read_chars);
+    ${*{$self}}{io_pty_easy_raw} = $raw;
     ${*{$self}}{io_pty_easy_final_output} = '';
 
     return $self;
@@ -135,7 +139,7 @@ sub spawn {
         $self->make_slave_controlling_terminal;
         close $self;
         $slave->clone_winsize_from(\*STDIN) if $self->handle_pty_size;
-        $slave->set_raw;
+        $slave->set_raw if ${*{$self}}{io_pty_easy_raw};
         # reopen the standard file descriptors in the child to point to the
         # pty rather than wherever they have been pointing during the script's
         # execution
@@ -154,7 +158,7 @@ sub spawn {
 
     close $writep;
     $self->close_slave;
-    $self->set_raw;
+    $self->set_raw if ${*{$self}}{io_pty_easy_raw};
     # this sysread will block until either we get an EOF from the other end of
     # the pipe being closed due to the exec, or until the child process sends
     # us the errno of the exec call after it fails
