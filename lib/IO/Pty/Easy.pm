@@ -322,7 +322,7 @@ sub close {
 =head2 handle_pty_size()
 
 Read/write accessor for the C<handle_pty_size> option documented in
-L<the constructor options|/new>.
+L<the constructor options|/new()>.
 
 =cut
 
@@ -335,7 +335,7 @@ sub handle_pty_size {
 =head2 def_max_read_chars()
 
 Read/write accessor for the C<def_max_read_chars> option documented in
-L<the constructor options|/new>.
+L<the constructor options|/new()>.
 
 =cut
 
