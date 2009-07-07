@@ -162,7 +162,6 @@ sub spawn {
 
     close $writep;
     $self->close_slave;
-    $self->set_raw if ${*{$self}}{io_pty_easy_raw};
     # this sysread will block until either we get an EOF from the other end of
     # the pipe being closed due to the exec, or until the child process sends
     # us the errno of the exec call after it fails
