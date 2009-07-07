@@ -31,9 +31,12 @@ IO::Pty::Easy - Easy interface to IO::Pty
 
 =head1 DESCRIPTION
 
-C<IO::Pty::Easy> provides an interface to L<IO::Pty> which hides most of the ugly details of handling ptys, wrapping them instead in simple spawn/read/write commands.
+C<IO::Pty::Easy> provides an interface to L<IO::Pty> which hides most of the
+ugly details of handling ptys, wrapping them instead in simple spawn/read/write
+commands.
 
-C<IO::Pty::Easy> uses L<IO::Pty> internally, so it inherits all of the portability restrictions from that module.
+C<IO::Pty::Easy> uses L<IO::Pty> internally, so it inherits all of the
+portability restrictions from that module.
 
 =cut
 
@@ -43,21 +46,25 @@ C<IO::Pty::Easy> uses L<IO::Pty> internally, so it inherits all of the portabili
 
 =head2 new()
 
-The C<new> constructor initializes the pty and returns a new C<IO::Pty::Easy> object. The constructor recognizes these parameters:
+The C<new> constructor initializes the pty and returns a new C<IO::Pty::Easy>
+object. The constructor recognizes these parameters:
 
 =over 4
 
 =item handle_pty_size
 
-A boolean option which determines whether or not changes in the size of the user's terminal should be propageted to the pty object. Defaults to true.
+A boolean option which determines whether or not changes in the size of the
+user's terminal should be propageted to the pty object. Defaults to true.
 
 =item def_max_read_chars
 
-The maximum number of characters returned by a C<read()> call. This can be overridden in the C<read()> argument list. Defaults to 8192.
+The maximum number of characters returned by a C<read()> call. This can be
+overridden in the C<read()> argument list. Defaults to 8192.
 
 =item raw
 
-A boolean option which determines whether or not to call L<IO::Pty/set_raw()> after C<spawn()>. Defaults to true.
+A boolean option which determines whether or not to call L<IO::Pty/set_raw()>
+after C<spawn()>. Defaults to true.
 
 =back
 
@@ -178,9 +185,16 @@ sub spawn {
 
 Read data from the process running on the pty.
 
-C<read()> takes two optional arguments: the first is the number of seconds (possibly fractional) to block for data (defaults to blocking forever, 0 means completely non-blocking), and the second is the maximum number of bytes to read (defaults to the value of C<def_max_read_chars>, usually 8192). The requirement for a maximum returned string length is a limitation imposed by the use of C<sysread()>, which we use internally.
+C<read()> takes two optional arguments: the first is the number of seconds
+(possibly fractional) to block for data (defaults to blocking forever, 0 means
+completely non-blocking), and the second is the maximum number of bytes to read
+(defaults to the value of C<def_max_read_chars>, usually 8192). The requirement
+for a maximum returned string length is a limitation imposed by the use of
+C<sysread()>, which we use internally.
 
-Returns C<undef> on timeout, the empty string on EOF, or a string of at least one character on success (this is consistent with C<sysread()> and L<Term::ReadKey>).
+Returns C<undef> on timeout, the empty string on EOF, or a string of at least
+one character on success (this is consistent with C<sysread()> and
+L<Term::ReadKey>).
 
 =cut
 
@@ -209,9 +223,13 @@ sub read {
 
 Writes a string to the pty.
 
-The first argument is the string to write, which is followed by one optional argument, the number of seconds (possibly fractional) to block for, taking the same values as C<read()>.
+The first argument is the string to write, which is followed by one optional
+argument, the number of seconds (possibly fractional) to block for, taking the
+same values as C<read()>.
 
-Returns undef on timeout, 0 on failure to write, or the number of bytes actually written on success (this may be less than the number of bytes requested; this should be checked for).
+Returns undef on timeout, 0 on failure to write, or the number of bytes
+actually written on success (this may be less than the number of bytes
+requested; this should be checked for).
 
 =cut
 
@@ -264,9 +282,13 @@ sub is_active {
 
 =head2 kill()
 
-Sends a signal to the process currently running on the pty (if any). Optionally blocks until the process dies.
+Sends a signal to the process currently running on the pty (if any). Optionally
+blocks until the process dies.
 
-C<kill()> takes two optional arguments. The first is the signal to send, in any format that the perl C<kill()> command recognizes (defaulting to "TERM"). The second is a boolean argument, where false means to block until the process dies, and true means to just send the signal and return.
+C<kill()> takes two optional arguments. The first is the signal to send, in any
+format that the perl C<kill()> command recognizes (defaulting to "TERM"). The
+second is a boolean argument, where false means to block until the process
+dies, and true means to just send the signal and return.
 
 Returns 1 if a process was actually signaled, and 0 otherwise.
 
@@ -285,7 +307,8 @@ sub kill {
 
 =head2 close()
 
-Kills any subprocesses and closes the pty. No other operations are valid after this call.
+Kills any subprocesses and closes the pty. No other operations are valid after
+this call.
 
 =cut
 
