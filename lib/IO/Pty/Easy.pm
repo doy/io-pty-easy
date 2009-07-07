@@ -89,7 +89,7 @@ sub new {
     bless $self, $class;
     $self->handle_pty_size($handle_pty_size);
     $self->def_max_read_chars($def_max_read_chars);
-    ${*{$self}}{final_output} = '';
+    ${*{$self}}{io_pty_easy_final_output} = '';
 
     return $self;
 }
@@ -129,7 +129,7 @@ sub spawn {
     # if the exec fails, signal the parent by sending the errno across the pipe
     # if the exec succeeds, perl will close the pipe, and the sysread will
     # return due to EOF
-    ${*{$self}}{pid} = fork;
+    ${*{$self}}{io_pty_easy_pid} = fork;
     unless ($self->pid) {
         close $readp;
         $self->make_slave_controlling_terminal;
@@ -210,10 +210,10 @@ sub read {
         my $nchars = sysread($self, $buf, $max_chars);
         $buf = '' if defined($nchars) && $nchars == 0;
     }
-    if (length(${*{$self}}{final_output}) > 0) {
+    if (length(${*{$self}}{io_pty_easy_final_output}) > 0) {
         no warnings 'uninitialized';
-        $buf = ${*{$self}}{final_output} . $buf;
-        ${*{$self}}{final_output} = '';
+        $buf = ${*{$self}}{io_pty_easy_final_output} . $buf;
+        ${*{$self}}{io_pty_easy_final_output} = '';
     }
     return $buf;
 }
@@ -264,9 +264,9 @@ sub is_active {
     vec($rin, fileno($self), 1) = 1;
     my $nfound = select($rin, undef, undef, 0);
     if ($nfound > 0) {
-        sysread($self, ${*{$self}}{final_output},
+        sysread($self, ${*{$self}}{io_pty_easy_final_output},
                 $self->def_max_read_chars,
-                length ${*{$self}}{final_output});
+                length ${*{$self}}{io_pty_easy_final_output});
     }
 
     my $active = kill 0 => $self->pid;
@@ -276,7 +276,7 @@ sub is_active {
     }
     if (!$active) {
         $SIG{WINCH} = 'DEFAULT' if $self->handle_pty_size;
-        delete ${*{$self}}{pid};
+        delete ${*{$self}}{io_pty_easy_pid};
     }
     return $active;
 }
@@ -333,8 +333,8 @@ L<the constructor options|/new>.
 
 sub handle_pty_size {
     my $self = shift;
-    ${*{$self}}{handle_pty_size} = $_[0] if @_;
-    ${*{$self}}{handle_pty_size};
+    ${*{$self}}{io_pty_easy_handle_pty_size} = $_[0] if @_;
+    ${*{$self}}{io_pty_easy_handle_pty_size};
 }
 # }}}
 
@@ -349,8 +349,8 @@ L<the constructor options|/new>.
 
 sub def_max_read_chars {
     my $self = shift;
-    ${*{$self}}{def_max_read_chars} = $_[0] if @_;
-    ${*{$self}}{def_max_read_chars};
+    ${*{$self}}{io_pty_easy_def_max_read_chars} = $_[0] if @_;
+    ${*{$self}}{io_pty_easy_def_max_read_chars};
 }
 # }}}
 
@@ -365,7 +365,7 @@ process is running.
 
 sub pid {
     my $self = shift;
-    ${*{$self}}{pid};
+    ${*{$self}}{io_pty_easy_pid};
 }
 # }}}
 
