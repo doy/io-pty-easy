@@ -88,6 +88,7 @@ sub new {
     my $self = $class->SUPER::new(%args);
     ${*{$self}}{handle_pty_size}    = $handle_pty_size;
     ${*{$self}}{def_max_read_chars} = $def_max_read_chars;
+    ${*{$self}}{final_output}       = '';
     bless $self, $class;
 
     return $self;
