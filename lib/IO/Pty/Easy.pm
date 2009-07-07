@@ -312,10 +312,6 @@ sub kill {
 
 Kills any subprocesses and closes the pty. No other operations are valid after this call.
 
-=over 4
-
-=back
-
 =cut
 
 sub close {
