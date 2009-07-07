@@ -11,14 +11,6 @@ use POSIX ();
 
 IO::Pty::Easy - Easy interface to IO::Pty
 
-=head1 VERSION
-
-Version 0.06 released 7/6/2009
-
-=cut
-
-our $VERSION = '0.06';
-
 =head1 SYNOPSIS
 
     use IO::Pty::Easy;
