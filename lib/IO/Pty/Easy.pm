@@ -86,10 +86,10 @@ sub new {
         if exists $args{def_max_read_chars};
 
     my $self = $class->SUPER::new(%args);
-    ${*{$self}}{handle_pty_size}    = $handle_pty_size;
-    ${*{$self}}{def_max_read_chars} = $def_max_read_chars;
-    ${*{$self}}{final_output}       = '';
     bless $self, $class;
+    $self->handle_pty_size($handle_pty_size);
+    $self->def_max_read_chars($def_max_read_chars);
+    ${*{$self}}{final_output} = '';
 
     return $self;
 }
@@ -130,11 +130,11 @@ sub spawn {
     # if the exec succeeds, perl will close the pipe, and the sysread will
     # return due to EOF
     ${*{$self}}{pid} = fork;
-    unless (${*{$self}}{pid}) {
+    unless ($self->pid) {
         close $readp;
         $self->make_slave_controlling_terminal;
         close $self;
-        $slave->clone_winsize_from(\*STDIN) if ${*{$self}}{handle_pty_size};
+        $slave->clone_winsize_from(\*STDIN) if $self->handle_pty_size;
         $slave->set_raw;
         # reopen the standard file descriptors in the child to point to the
         # pty rather than wherever they have been pointing during the script's
@@ -163,7 +163,7 @@ sub spawn {
     unless (defined $read_bytes) {
         # XXX: should alarm here and follow up with SIGKILL if the process
         # refuses to die
-        kill TERM => ${*{$self}}{pid};
+        kill TERM => $self->pid;
         close $readp;
         $self->_wait_for_inactive;
         croak "Cannot sync with child: $!";
@@ -178,10 +178,10 @@ sub spawn {
     my $winch;
     $winch = sub {
         $self->slave->clone_winsize_from(\*STDIN);
-        kill WINCH => ${*{$self}}{pid} if $self->is_active;
+        kill WINCH => $self->pid if $self->is_active;
         $SIG{WINCH} = $winch;
     };
-    $SIG{WINCH} = $winch if ${*{$self}}{handle_pty_size};
+    $SIG{WINCH} = $winch if $self->handle_pty_size;
 }
 # }}}
 
@@ -200,7 +200,7 @@ Returns C<undef> on timeout, the empty string on EOF, or a string of at least on
 sub read {
     my $self = shift;
     my ($timeout, $max_chars) = @_;
-    $max_chars ||= ${*{$self}}{def_max_read_chars};
+    $max_chars ||= $self->def_max_read_chars;
 
     my $rin = '';
     vec($rin, fileno($self), 1) = 1;
@@ -257,7 +257,7 @@ Returns whether or not a subprocess is currently running on the pty.
 sub is_active {
     my $self = shift;
 
-    return 0 unless defined ${*{$self}}{pid};
+    return 0 unless defined $self->pid;
     # XXX FreeBSD 7.0 will not allow a session leader to exit until the kernel
     # tty output buffer is empty.  Make it so.
     my $rin = '';
@@ -265,17 +265,17 @@ sub is_active {
     my $nfound = select($rin, undef, undef, 0);
     if ($nfound > 0) {
         sysread($self, ${*{$self}}{final_output},
-                ${*{$self}}{def_max_read_chars},
+                $self->def_max_read_chars,
                 length ${*{$self}}{final_output});
     }
 
-    my $active = kill 0 => ${*{$self}}{pid};
+    my $active = kill 0 => $self->pid;
     if ($active) {
-        my $pid = waitpid(${*{$self}}{pid}, POSIX::WNOHANG());
-        $active = 0 if $pid == ${*{$self}}{pid};
+        my $pid = waitpid($self->pid, POSIX::WNOHANG());
+        $active = 0 if $pid == $self->pid;
     }
     if (!$active) {
-        $SIG{WINCH} = 'DEFAULT' if ${*{$self}}{handle_pty_size};
+        $SIG{WINCH} = 'DEFAULT' if $self->handle_pty_size;
         delete ${*{$self}}{pid};
     }
     return $active;
@@ -299,7 +299,7 @@ sub kill {
     my ($sig, $non_blocking) = @_;
     $sig = "TERM" unless defined $sig;
 
-    my $kills = kill $sig => ${*{$self}}{pid} if $self->is_active;
+    my $kills = kill $sig => $self->pid if $self->is_active;
     $self->_wait_for_inactive unless $non_blocking;
 
     return $kills;
@@ -319,6 +319,53 @@ sub close {
 
     $self->kill;
     close $self;
+}
+# }}}
+
+# handle_pty_size() {{{
+
+=head2 handle_pty_size()
+
+Read/write accessor for the C<handle_pty_size> option documented in
+L<the constructor options|/new>.
+
+=cut
+
+sub handle_pty_size {
+    my $self = shift;
+    ${*{$self}}{handle_pty_size} = $_[0] if @_;
+    ${*{$self}}{handle_pty_size};
+}
+# }}}
+
+# def_max_read_chars() {{{
+
+=head2 def_max_read_chars()
+
+Read/write accessor for the C<def_max_read_chars> option documented in
+L<the constructor options|/new>.
+
+=cut
+
+sub def_max_read_chars {
+    my $self = shift;
+    ${*{$self}}{def_max_read_chars} = $_[0] if @_;
+    ${*{$self}}{def_max_read_chars};
+}
+# }}}
+
+# pid() {{{
+
+=head2 pid()
+
+Returns the pid of the process currently running in the pty, or undef if no
+process is running.
+
+=cut
+
+sub pid {
+    my $self = shift;
+    ${*{$self}}{pid};
 }
 # }}}
 
