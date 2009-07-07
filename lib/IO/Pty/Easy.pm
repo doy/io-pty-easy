@@ -69,6 +69,10 @@ A boolean option which determines whether or not changes in the size of the user
 
 The maximum number of characters returned by a C<read()> call. This can be overridden in the C<read()> argument list. Defaults to 8192.
 
+=item raw
+
+A boolean option which determines whether or not to call L<IO::Pty/set_raw()> after C<spawn()>. Defaults to true.
+
 =back
 
 =cut
