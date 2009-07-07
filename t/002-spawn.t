@@ -13,4 +13,4 @@ ok(!$pty->is_active, "killing a subprocess");
 $pty->spawn("$^X -ple ''");
 $pty->close;
 ok(!$pty->is_active, "auto-killing a pty with close()");
-ok(!defined($pty->{pty}), "closing a pty after a spawn");
+ok(!$pty->opened, "closing a pty after a spawn");

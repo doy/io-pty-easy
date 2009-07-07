@@ -6,4 +6,4 @@ use IO::Pty::Easy;
 
 my $pty = IO::Pty::Easy->new;
 $pty->close;
-ok(!defined($pty->{pty}), "closing a pty before a spawn");
+ok(!$pty->opened, "closing a pty before a spawn");
