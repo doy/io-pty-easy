@@ -5,8 +5,6 @@ use base 'IO::Pty';
 use Carp;
 use POSIX ();
 
-# Intro documentation {{{
-
 =head1 NAME
 
 IO::Pty::Easy - Easy interface to IO::Pty
@@ -39,13 +37,9 @@ C<IO::Pty::Easy> uses L<IO::Pty> internally, so it inherits all of the portabili
 
 =cut
 
-# }}}
-
 =head1 CONSTRUCTOR
 
 =cut
-
-# new() {{{
 
 =head2 new()
 
@@ -93,13 +87,10 @@ sub new {
 
     return $self;
 }
-# }}}
 
 =head1 METHODS
 
 =cut
-
-# spawn() {{{
 
 =head2 spawn()
 
@@ -182,9 +173,6 @@ sub spawn {
     };
     $SIG{WINCH} = $winch if $self->handle_pty_size;
 }
-# }}}
-
-# read() {{{
 
 =head2 read()
 
@@ -216,9 +204,6 @@ sub read {
     }
     return $buf;
 }
-# }}}
-
-# write() {{{
 
 =head2 write()
 
@@ -243,9 +228,6 @@ sub write {
     }
     return $nchars;
 }
-# }}}
-
-# is_active() {{{
 
 =head2 is_active()
 
@@ -279,9 +261,6 @@ sub is_active {
     }
     return $active;
 }
-# }}}
-
-# kill() {{{
 
 =head2 kill()
 
@@ -303,9 +282,6 @@ sub kill {
 
     return $kills;
 }
-# }}}
-
-# close() {{{
 
 =head2 close()
 
@@ -319,9 +295,6 @@ sub close {
     $self->kill;
     close $self;
 }
-# }}}
-
-# handle_pty_size() {{{
 
 =head2 handle_pty_size()
 
@@ -335,9 +308,6 @@ sub handle_pty_size {
     ${*{$self}}{io_pty_easy_handle_pty_size} = $_[0] if @_;
     ${*{$self}}{io_pty_easy_handle_pty_size};
 }
-# }}}
-
-# def_max_read_chars() {{{
 
 =head2 def_max_read_chars()
 
@@ -351,9 +321,6 @@ sub def_max_read_chars {
     ${*{$self}}{io_pty_easy_def_max_read_chars} = $_[0] if @_;
     ${*{$self}}{io_pty_easy_def_max_read_chars};
 }
-# }}}
-
-# pid() {{{
 
 =head2 pid()
 
@@ -366,26 +333,19 @@ sub pid {
     my $self = shift;
     ${*{$self}}{io_pty_easy_pid};
 }
-# }}}
 
-# _wait_for_inactive() {{{
 sub _wait_for_inactive {
     my $self = shift;
 
     select(undef, undef, undef, 0.01) while $self->is_active;
 }
-# }}}
 
-# DESTROY {{{
 sub DESTROY {
     my $self = shift;
     local $@;
     local $?;
     $self->close;
 }
-# }}}
-
-# Ending documentation {{{
 
 =head1 SEE ALSO
 
@@ -445,7 +405,5 @@ This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
 
 =cut
-
-# }}}
 
 1;
