@@ -1,7 +1,7 @@
 package IO::Pty::Easy;
 use warnings;
 use strict;
-use IO::Pty;
+use base 'IO::Pty';
 use Carp;
 use POSIX ();
 
@@ -75,22 +75,20 @@ The maximum number of characters returned by a C<read()> call. This can be overr
 
 sub new {
     my $class = shift;
-    my $self = {
-        # options
-        handle_pty_size => 1,
-        def_max_read_chars => 8192,
-        @_,
+    my %args = @_;
 
-        # state
-        pty          => undef,
-        pid          => undef,
-        final_output => '',
-    };
+    my $handle_pty_size = 1;
+    $handle_pty_size = delete $args{handle_pty_size}
+        if exists $args{handle_pty_size};
+    $handle_pty_size = 0 unless POSIX::isatty(*STDIN);
+    my $def_max_read_chars = 8192;
+    $def_max_read_chars = delete $args{def_max_read_chars}
+        if exists $args{def_max_read_chars};
 
+    my $self = $class->SUPER::new(%args);
+    ${*{$self}}{handle_pty_size}    = $handle_pty_size;
+    ${*{$self}}{def_max_read_chars} = $def_max_read_chars;
     bless $self, $class;
-
-    $self->{pty} = IO::Pty->new;
-    $self->{handle_pty_size} = 0 unless POSIX::isatty(*STDIN);
 
     return $self;
 }
@@ -114,7 +112,7 @@ Returns true on success, false on failure.
 
 sub spawn {
     my $self = shift;
-    my $slave = $self->{pty}->slave;
+    my $slave = $self->slave;
 
     croak "Attempt to spawn a subprocess when one is already running"
         if $self->is_active;
@@ -130,12 +128,12 @@ sub spawn {
     # if the exec fails, signal the parent by sending the errno across the pipe
     # if the exec succeeds, perl will close the pipe, and the sysread will
     # return due to EOF
-    $self->{pid} = fork;
-    unless ($self->{pid}) {
+    ${*{$self}}{pid} = fork;
+    unless (${*{$self}}{pid}) {
         close $readp;
-        $self->{pty}->make_slave_controlling_terminal;
-        close $self->{pty};
-        $slave->clone_winsize_from(\*STDIN) if $self->{handle_pty_size};
+        $self->make_slave_controlling_terminal;
+        close $self;
+        $slave->clone_winsize_from(\*STDIN) if ${*{$self}}{handle_pty_size};
         $slave->set_raw;
         # reopen the standard file descriptors in the child to point to the
         # pty rather than wherever they have been pointing during the script's
@@ -154,8 +152,8 @@ sub spawn {
     }
 
     close $writep;
-    $self->{pty}->close_slave;
-    $self->{pty}->set_raw;
+    $self->close_slave;
+    $self->set_raw;
     # this sysread will block until either we get an EOF from the other end of
     # the pipe being closed due to the exec, or until the child process sends
     # us the errno of the exec call after it fails
@@ -164,7 +162,7 @@ sub spawn {
     unless (defined $read_bytes) {
         # XXX: should alarm here and follow up with SIGKILL if the process
         # refuses to die
-        kill TERM => $self->{pid};
+        kill TERM => ${*{$self}}{pid};
         close $readp;
         $self->_wait_for_inactive;
         croak "Cannot sync with child: $!";
@@ -178,11 +176,11 @@ sub spawn {
 
     my $winch;
     $winch = sub {
-        $self->{pty}->slave->clone_winsize_from(\*STDIN);
-        kill WINCH => $self->{pid} if $self->is_active;
+        $self->slave->clone_winsize_from(\*STDIN);
+        kill WINCH => ${*{$self}}{pid} if $self->is_active;
         $SIG{WINCH} = $winch;
     };
-    $SIG{WINCH} = $winch if $self->{handle_pty_size};
+    $SIG{WINCH} = $winch if ${*{$self}}{handle_pty_size};
 }
 # }}}
 
@@ -201,20 +199,20 @@ Returns C<undef> on timeout, the empty string on EOF, or a string of at least on
 sub read {
     my $self = shift;
     my ($timeout, $max_chars) = @_;
-    $max_chars ||= $self->{def_max_read_chars};
+    $max_chars ||= ${*{$self}}{def_max_read_chars};
 
     my $rin = '';
-    vec($rin, fileno($self->{pty}), 1) = 1;
+    vec($rin, fileno($self), 1) = 1;
     my $nfound = select($rin, undef, undef, $timeout);
     my $buf;
     if ($nfound > 0) {
-        my $nchars = sysread($self->{pty}, $buf, $max_chars);
+        my $nchars = sysread($self, $buf, $max_chars);
         $buf = '' if defined($nchars) && $nchars == 0;
     }
-    if (length($self->{final_output}) > 0) {
+    if (length(${*{$self}}{final_output}) > 0) {
         no warnings 'uninitialized';
-        $buf = $self->{final_output} . $buf;
-        $self->{final_output} = '';
+        $buf = ${*{$self}}{final_output} . $buf;
+        ${*{$self}}{final_output} = '';
     }
     return $buf;
 }
@@ -237,11 +235,11 @@ sub write {
     my ($text, $timeout) = @_;
 
     my $win = '';
-    vec($win, fileno($self->{pty}), 1) = 1;
+    vec($win, fileno($self), 1) = 1;
     my $nfound = select(undef, $win, undef, $timeout);
     my $nchars;
     if ($nfound > 0) {
-        $nchars = syswrite($self->{pty}, $text);
+        $nchars = syswrite($self, $text);
     }
     return $nchars;
 }
@@ -258,25 +256,26 @@ Returns whether or not a subprocess is currently running on the pty.
 sub is_active {
     my $self = shift;
 
-    return 0 unless defined $self->{pid};
+    return 0 unless defined ${*{$self}}{pid};
     # XXX FreeBSD 7.0 will not allow a session leader to exit until the kernel
     # tty output buffer is empty.  Make it so.
     my $rin = '';
-    vec($rin, fileno($self->{pty}), 1) = 1;
+    vec($rin, fileno($self), 1) = 1;
     my $nfound = select($rin, undef, undef, 0);
     if ($nfound > 0) {
-        sysread($self->{pty}, $self->{final_output},
-                $self->{def_max_read_chars}, length $self->{final_output});
+        sysread($self, ${*{$self}}{final_output},
+                ${*{$self}}{def_max_read_chars},
+                length ${*{$self}}{final_output});
     }
 
-    my $active = kill 0 => $self->{pid};
+    my $active = kill 0 => ${*{$self}}{pid};
     if ($active) {
-        my $pid = waitpid($self->{pid}, POSIX::WNOHANG());
-        $active = 0 if $pid == $self->{pid};
+        my $pid = waitpid(${*{$self}}{pid}, POSIX::WNOHANG());
+        $active = 0 if $pid == ${*{$self}}{pid};
     }
     if (!$active) {
-        $SIG{WINCH} = 'DEFAULT' if $self->{handle_pty_size};
-        delete $self->{pid};
+        $SIG{WINCH} = 'DEFAULT' if ${*{$self}}{handle_pty_size};
+        delete ${*{$self}}{pid};
     }
     return $active;
 }
@@ -299,7 +298,7 @@ sub kill {
     my ($sig, $non_blocking) = @_;
     $sig = "TERM" unless defined $sig;
 
-    my $kills = kill $sig => $self->{pid} if $self->is_active;
+    my $kills = kill $sig => ${*{$self}}{pid} if $self->is_active;
     $self->_wait_for_inactive unless $non_blocking;
 
     return $kills;
@@ -321,10 +320,8 @@ Kills any subprocesses and closes the pty. No other operations are valid after t
 sub close {
     my $self = shift;
 
-    return unless $self->{pty};
     $self->kill;
-    close $self->{pty};
-    delete $self->{pty};
+    close $self;
 }
 # }}}
 
