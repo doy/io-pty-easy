@@ -1,5 +1,9 @@
 Revision history for IO-Pty-Easy
 
+0.08    10/10/2009
+    - Fixed some circular references, should fix global destruction issues
+      (reported by kbrint, RT#50373)
+
 0.07    07/07/2009
     - Add a constructor option 'raw' (default true) to configure whether the
       pty should be set to raw mode on spawn.
