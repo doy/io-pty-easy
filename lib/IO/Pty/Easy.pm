@@ -4,6 +4,7 @@ use strict;
 use base 'IO::Pty';
 use Carp;
 use POSIX ();
+use Scalar::Util qw(weaken);
 
 =head1 NAME
 
@@ -91,6 +92,7 @@ sub new {
     $self->def_max_read_chars($def_max_read_chars);
     ${*{$self}}{io_pty_easy_raw} = $raw;
     ${*{$self}}{io_pty_easy_final_output} = '';
+    ${*{$self}}{io_pty_easy_did_handle_pty_size} = 0;
 
     return $self;
 }
@@ -172,13 +174,15 @@ sub spawn {
         croak "Cannot exec(@_): $errno";
     }
 
-    my $winch;
-    $winch = sub {
-        $self->slave->clone_winsize_from(\*STDIN);
-        kill WINCH => $self->pid if $self->is_active;
-        $SIG{WINCH} = $winch;
-    };
-    $SIG{WINCH} = $winch if $self->handle_pty_size;
+    if ($self->handle_pty_size) {
+        my $weakself = weaken($self);
+        $SIG{WINCH} = sub {
+            return unless $weakself;
+            $weakself->slave->clone_winsize_from(\*STDIN);
+            kill WINCH => $weakself->pid if $weakself->is_active;
+        };
+        ${*{$self}}{io_pty_easy_did_handle_pty_size} = 1;
+    }
 }
 
 =head2 read()
@@ -274,7 +278,9 @@ sub is_active {
         $active = 0 if $pid == $self->pid;
     }
     if (!$active) {
-        $SIG{WINCH} = 'DEFAULT' if $self->handle_pty_size;
+        $SIG{WINCH} = 'DEFAULT'
+            if ${*{$self}}{io_pty_easy_did_handle_pty_size};
+        ${*{$self}}{io_pty_easy_did_handle_pty_size} = 0;
         delete ${*{$self}}{io_pty_easy_pid};
     }
     return $active;
