@@ -139,11 +139,11 @@ sub spawn {
         # reopen the standard file descriptors in the child to point to the
         # pty rather than wherever they have been pointing during the script's
         # execution
-        open(STDIN,  "<&" . $slave->fileno)
+        open(STDIN,  '<&', $slave->fileno)
             or carp "Couldn't reopen STDIN for reading";
-        open(STDOUT, ">&" . $slave->fileno)
+        open(STDOUT, '>&', $slave->fileno)
             or carp "Couldn't reopen STDOUT for writing";
-        open(STDERR, ">&" . $slave->fileno)
+        open(STDERR, '>&', $slave->fileno)
             or carp "Couldn't reopen STDERR for writing";
         close $slave;
         { exec(@_) };
@@ -305,7 +305,8 @@ sub kill {
     my ($sig, $non_blocking) = @_;
     $sig = "TERM" unless defined $sig;
 
-    my $kills = kill $sig => $self->pid if $self->is_active;
+    my $kills;
+    $kills = kill $sig => $self->pid if $self->is_active;
     $self->_wait_for_inactive unless $non_blocking;
 
     return $kills;
