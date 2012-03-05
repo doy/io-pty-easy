@@ -1,6 +1,9 @@
 Revision history for IO-Pty-Easy
 
 {{$NEXT}}
+    - Close the underlying pty before trying to kill it, to give programs that
+      clean up on EOF time to do that
+    - Other various cleanups
 
 0.08  2009-10-10
     - Fixed some circular references, should fix global destruction issues
