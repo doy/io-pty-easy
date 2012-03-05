@@ -1,7 +1,7 @@
-#!perl
+#!/usr/bin/env perl
 use strict;
 use warnings;
-use Test::More tests => 5;
+use Test::More;
 use IO::Pty::Easy;
 
 my $pty = IO::Pty::Easy->new;
@@ -14,3 +14,5 @@ $pty->spawn("$^X -ple ''");
 $pty->close;
 ok(!$pty->is_active, "auto-killing a pty with close()");
 ok(!$pty->opened, "closing a pty after a spawn");
+
+done_testing;

@@ -1,7 +1,7 @@
-#!perl
+#!/usr/bin/env perl
 use strict;
 use warnings;
-use Test::More tests => 5;
+use Test::More;
 use IO::Pty::Easy;
 
 my $pty = IO::Pty::Easy->new;
@@ -46,3 +46,5 @@ TODO: {
 # with the exit status of the signal that the subprocess dies with, so we have
 # to kill the subprocess before exiting.
 $pty->close;
+
+done_testing;

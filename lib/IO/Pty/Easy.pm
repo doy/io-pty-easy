@@ -1,14 +1,13 @@
 package IO::Pty::Easy;
 use warnings;
 use strict;
-use base 'IO::Pty';
+# ABSTRACT: Easy interface to IO::Pty
+
 use Carp;
 use POSIX ();
 use Scalar::Util qw(weaken);
 
-=head1 NAME
-
-IO::Pty::Easy - Easy interface to IO::Pty
+use base 'IO::Pty';
 
 =head1 SYNOPSIS
 
@@ -41,11 +40,7 @@ portability restrictions from that module.
 
 =cut
 
-=head1 CONSTRUCTOR
-
-=cut
-
-=head2 new()
+=method new(%params)
 
 The C<new> constructor initializes the pty and returns a new C<IO::Pty::Easy>
 object. The constructor recognizes these parameters:
@@ -97,11 +92,7 @@ sub new {
     return $self;
 }
 
-=head1 METHODS
-
-=cut
-
-=head2 spawn()
+=method spawn(@argv)
 
 Fork a new subprocess, with stdin/stdout/stderr tied to the pty.
 
@@ -185,7 +176,7 @@ sub spawn {
     }
 }
 
-=head2 read()
+=method read($timeout, $length)
 
 Read data from the process running on the pty.
 
@@ -223,7 +214,7 @@ sub read {
     return $buf;
 }
 
-=head2 write()
+=method write($buf, $timeout)
 
 Writes a string to the pty.
 
@@ -251,7 +242,7 @@ sub write {
     return $nchars;
 }
 
-=head2 is_active()
+=method is_active
 
 Returns whether or not a subprocess is currently running on the pty.
 
@@ -289,7 +280,7 @@ sub is_active {
     return $active;
 }
 
-=head2 kill()
+=method kill($sig, $non_blocking)
 
 Sends a signal to the process currently running on the pty (if any). Optionally
 blocks until the process dies.
@@ -315,7 +306,7 @@ sub kill {
     return $kills;
 }
 
-=head2 close()
+=method close
 
 Kills any subprocesses and closes the pty. No other operations are valid after
 this call.
@@ -329,10 +320,10 @@ sub close {
     $self->kill;
 }
 
-=head2 handle_pty_size()
+=method handle_pty_size
 
 Read/write accessor for the C<handle_pty_size> option documented in
-L<the constructor options|/new()>.
+L<the constructor options|/new(%params)>.
 
 =cut
 
@@ -342,10 +333,10 @@ sub handle_pty_size {
     ${*{$self}}{io_pty_easy_handle_pty_size};
 }
 
-=head2 def_max_read_chars()
+=method def_max_read_chars
 
 Read/write accessor for the C<def_max_read_chars> option documented in
-L<the constructor options|/new()>.
+L<the constructor options|/new(%params)>.
 
 =cut
 
@@ -355,7 +346,7 @@ sub def_max_read_chars {
     ${*{$self}}{io_pty_easy_def_max_read_chars};
 }
 
-=head2 pid()
+=method pid
 
 Returns the pid of the process currently running in the pty, or undef if no
 process is running.
@@ -380,20 +371,6 @@ sub DESTROY {
     $self->close;
 }
 
-=head1 SEE ALSO
-
-L<IO::Pty>
-
-L<Expect>
-
-L<IO::Pty::HalfDuplex>
-
-=head1 AUTHOR
-
-Jesse Luehrs, C<< <doy at tozt dot net> >>
-
-This module is based heavily on the F<try> script bundled with L<IO::Pty>.
-
 =head1 BUGS
 
 No known bugs.
@@ -401,6 +378,16 @@ No known bugs.
 Please report any bugs through RT: email
 C<bug-io-pty-easy at rt.cpan.org>, or browse to
 L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=IO-Pty-Easy>.
+
+=head1 SEE ALSO
+
+L<IO::Pty>
+
+(This module is based heavily on the F<try> script bundled with L<IO::Pty>.)
+
+L<Expect>
+
+L<IO::Pty::HalfDuplex>
 
 =head1 SUPPORT
 
@@ -429,13 +416,6 @@ L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=IO-Pty-Easy>
 L<http://search.cpan.org/dist/IO-Pty-Easy>
 
 =back
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright 2007-2009 Jesse Luehrs.
-
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
 
 =cut
 

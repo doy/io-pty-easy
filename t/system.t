@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
-use Test::More tests => 4;
+use Test::More;
 use IO::Pty::Easy;
 
 my $pty = IO::Pty::Easy->new;
@@ -26,3 +26,5 @@ eval {
 isnt($@, "alarm2\n", "system() didn't time out (after kill)");
 is($output, "bar", "system() got the right value (after kill)");
 $pty->close;
+
+done_testing;

@@ -1,7 +1,7 @@
-#!perl
+#!/usr/bin/env perl
 use strict;
 use warnings;
-use Test::More tests => 2;
+use Test::More;
 use IO::Pty::Easy;
 
 my $pty = IO::Pty::Easy->new;
@@ -19,3 +19,5 @@ $script .= "sleep 1 while 1;";
 $pty->spawn("$^X -e '$script'");
 like($pty->read, qr/ok/, "runs subprocess in a pty");
 $pty->close;
+
+done_testing;
