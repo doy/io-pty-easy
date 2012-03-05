@@ -261,15 +261,18 @@ sub is_active {
     my $self = shift;
 
     return 0 unless defined $self->pid;
-    # XXX FreeBSD 7.0 will not allow a session leader to exit until the kernel
-    # tty output buffer is empty.  Make it so.
-    my $rin = '';
-    vec($rin, fileno($self), 1) = 1;
-    my $nfound = select($rin, undef, undef, 0);
-    if ($nfound > 0) {
-        sysread($self, ${*{$self}}{io_pty_easy_final_output},
-                $self->def_max_read_chars,
-                length ${*{$self}}{io_pty_easy_final_output});
+
+    if (defined(my $fd = fileno($self))) {
+        # XXX FreeBSD 7.0 will not allow a session leader to exit until the
+        # kernel tty output buffer is empty.  Make it so.
+        my $rin = '';
+        vec($rin, $fd, 1) = 1;
+        my $nfound = select($rin, undef, undef, 0);
+        if ($nfound > 0) {
+            sysread($self, ${*{$self}}{io_pty_easy_final_output},
+                    $self->def_max_read_chars,
+                    length ${*{$self}}{io_pty_easy_final_output});
+        }
     }
 
     my $active = kill 0 => $self->pid;
@@ -322,8 +325,8 @@ this call.
 sub close {
     my $self = shift;
 
-    $self->kill;
     close $self;
+    $self->kill;
 }
 
 =head2 handle_pty_size()
