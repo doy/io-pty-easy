@@ -1,6 +1,8 @@
 Revision history for IO-Pty-Easy
 
 {{$NEXT}}
+
+0.09  2012-03-05
     - Close the underlying pty before trying to kill it, to give programs that
       clean up on EOF time to do that
     - Other various cleanups
