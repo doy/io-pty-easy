@@ -96,9 +96,9 @@ sub new {
 
 Fork a new subprocess, with stdin/stdout/stderr tied to the pty.
 
-The argument list is passed directly to C<exec()>.
+The argument list is passed directly to C<system()>.
 
-Returns true on success, false on failure.
+Dies on failure.
 
 =cut
 
