@@ -1,6 +1,7 @@
 Revision history for IO-Pty-Easy
 
 {{$NEXT}}
+    - Fix documentation of the spawn method
 
 0.09  2012-03-05
     - Close the underlying pty before trying to kill it, to give programs that
