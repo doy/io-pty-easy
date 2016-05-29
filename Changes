@@ -1,6 +1,8 @@
 Revision history for IO-Pty-Easy
 
 {{$NEXT}}
+
+0.10  2016-05-28
     - Fix documentation of the spawn method
 
 0.09  2012-03-05
