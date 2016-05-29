@@ -12,6 +12,8 @@ like($pty->read, qr/testing/, "basic read/write testing");
 is($pty->read(0.1), undef, "read returns undef on timeout");
 $pty->kill;
 
+TODO: {
+local $TODO = "this isn't a reliable way to produce a blocking write";
 $pty->spawn("$^X -e 'sleep(1) while 1'");
 eval {
     local $SIG{ALRM} = sub {
@@ -25,6 +27,7 @@ eval {
 };
 $pty->kill;
 $pty->close;
+}
 
 # create an entirely new pty to clear the input buffer
 $pty = IO::Pty::Easy->new;
